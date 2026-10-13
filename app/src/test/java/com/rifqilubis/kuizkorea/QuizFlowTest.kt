@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,61 +22,63 @@ import org.robolectric.annotation.Config
  * ("Vertically scrollable component was measured with an infinity maximum
  * height constraints"). Layar hasil hanya muncul di akhir kuis, itulah sebabnya
  * crash-nya baru terasa di situ.
+ *
+ * Catatan: setiap ketukan didahului performScrollTo(), karena layar kuis memang
+ * bisa digulung dan tombol di bawah bisa berada di luar area tampilan.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
+@Config(sdk = [33], qualifiers = "w411dp-h891dp")
 class QuizFlowTest {
 
     @get:Rule
     val compose = createComposeRule()
 
-    /** Menyelesaikan satu putaran penuh dan memastikan layar hasil tampil. */
+    private fun tap(tag: String) {
+        compose.onNodeWithTag(tag).performScrollTo().performClick()
+    }
+
+    private fun tapText(text: String) {
+        compose.onNodeWithText(text).performScrollTo().performClick()
+    }
+
+    /** Menyelesaikan satu putaran penuh (20 soal) sampai layar hasil. */
+    private fun selesaikanSatuPutaran() {
+        tap("start")
+        repeat(20) {
+            tap("option-0")
+            tap("next")
+        }
+    }
+
     @Test
     fun menyelesaikanKuisMenampilkanLayarHasil() {
         compose.setContent { KuizRoot() }
 
-        compose.onNodeWithTag("start").performClick()
-
-        // Pengaturan bawaan: 20 soal. Jawab pilihan pertama, lalu lanjut.
-        repeat(20) {
-            compose.onNodeWithTag("option-0").performClick()
-            compose.onNodeWithTag("next").performClick()
-        }
+        selesaikanSatuPutaran()
 
         // Kalau tidak ada pengecualian, layar hasil sudah tampil.
-        compose.onNodeWithText("Main lagi").assertIsDisplayed()
-        compose.onNodeWithText("Ganti pengaturan").assertIsDisplayed()
+        compose.onNodeWithText("Main lagi").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Ganti pengaturan").performScrollTo().assertIsDisplayed()
     }
 
-    /** Layar hasil juga harus bisa dibuka ulang tanpa masalah. */
     @Test
     fun mengulangKuisDariLayarHasilTetapBerjalan() {
         compose.setContent { KuizRoot() }
 
-        compose.onNodeWithTag("start").performClick()
-        repeat(20) {
-            compose.onNodeWithTag("option-0").performClick()
-            compose.onNodeWithTag("next").performClick()
-        }
-
-        compose.onNodeWithText("Main lagi").performClick()
+        selesaikanSatuPutaran()
+        tapText("Main lagi")
 
         // Kembali ke soal pertama.
-        compose.onNodeWithTag("option-0").assertIsDisplayed()
+        compose.onNodeWithTag("option-0").performScrollTo().assertIsDisplayed()
     }
 
-    /** Berpindah ke pengaturan dari layar hasil mengembalikan layar awal. */
     @Test
     fun kembaliKePengaturanDariLayarHasil() {
         compose.setContent { KuizRoot() }
 
-        compose.onNodeWithTag("start").performClick()
-        repeat(20) {
-            compose.onNodeWithTag("option-0").performClick()
-            compose.onNodeWithTag("next").performClick()
-        }
+        selesaikanSatuPutaran()
+        tapText("Ganti pengaturan")
 
-        compose.onNodeWithText("Ganti pengaturan").performClick()
-        compose.onNodeWithTag("start").assertIsDisplayed()
+        compose.onNodeWithTag("start").performScrollTo().assertIsDisplayed()
     }
 }
