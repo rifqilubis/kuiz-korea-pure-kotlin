@@ -11,6 +11,13 @@ on:
 permissions:
   contents: write
 
+# Satu push kadang memicu dua run untuk ref yang sama. Tanpa ini keduanya
+# berlomba membuat Release yang sama. Dengan ini run kedua menunggu yang
+# pertama, dan langkah rilis di bawah sudah idempoten.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Build APK debug
@@ -77,12 +84,17 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
-      - name: Buat Release (hanya saat push tag v*)
+      - name: Buat atau perbarui Release (hanya saat push tag v*)
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" \
-            app/build/outputs/apk/debug/*.apk \
-            --title "Korean Quiz ${GITHUB_REF_NAME}" \
-            --generate-notes
+          APK=$(ls app/build/outputs/apk/debug/*.apk | head -n 1)
+          if gh release view "${GITHUB_REF_NAME}" > /dev/null 2>&1; then
+            echo "Rilis ${GITHUB_REF_NAME} sudah ada, APK-nya diperbarui."
+            gh release upload "${GITHUB_REF_NAME}" "$APK" --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" "$APK" \
+              --title "Kuiz Korea ${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi
