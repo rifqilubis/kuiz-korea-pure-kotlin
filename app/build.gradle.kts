@@ -40,6 +40,8 @@ android {
 
     buildFeatures {
         compose = true
+        // Dipakai CrashLog untuk mencatat nomor versi di laporan kesalahan.
+        buildConfig = true
     }
 
     composeOptions {

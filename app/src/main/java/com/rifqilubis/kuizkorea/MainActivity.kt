@@ -31,6 +31,7 @@ import com.rifqilubis.kuizkorea.data.Question
 import com.rifqilubis.kuizkorea.data.Quiz
 import com.rifqilubis.kuizkorea.data.UiLang
 import com.rifqilubis.kuizkorea.data.WORDS
+import com.rifqilubis.kuizkorea.ui.CrashScreen
 import com.rifqilubis.kuizkorea.ui.KuizColors
 import com.rifqilubis.kuizkorea.ui.KuizTheme
 import com.rifqilubis.kuizkorea.ui.QuizScreen
@@ -49,6 +50,9 @@ import com.rifqilubis.kuizkorea.ui.stringsFor
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Dipasang paling awal supaya kesalahan apa pun tercatat dan bisa
+        // dibaca pengguna saat aplikasi dibuka lagi.
+        CrashLog.install(applicationContext)
         setContent { KuizRoot() }
     }
 }
@@ -70,9 +74,30 @@ internal fun KuizRoot() {
 
     var dark by remember { mutableStateOf(prefs.getBoolean(KEY_DARK, true)) }
     var lang by remember { mutableStateOf(if (prefs.getString(KEY_LANG, "id") == "en") UiLang.EN else UiLang.ID) }
+    var crashText by remember { mutableStateOf(CrashLog.read(context)) }
 
     KuizTheme(dark = dark) {
         val strings = stringsFor(lang)
+
+        // Kalau aplikasi sebelumnya berhenti karena kesalahan, tampilkan
+        // laporannya lebih dulu supaya bisa disalin dan dikirim.
+        val crash = crashText
+        if (crash != null) {
+            Surface(
+                color = MaterialTheme.colorScheme.background,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                CrashScreen(
+                    text = crash,
+                    lang = lang,
+                    onDismiss = {
+                        CrashLog.clear(context)
+                        crashText = null
+                    },
+                )
+            }
+            return@KuizTheme
+        }
 
         var screen by remember { mutableStateOf(Screen.Start) }
         var direction by remember { mutableStateOf(Direction.KO_ID) }
