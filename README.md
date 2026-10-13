@@ -92,3 +92,28 @@ Kode ini diverifikasi lewat build GitHub Actions, bukan lewat emulator — tidak
 maupun perangkat di tempat proyek ini dibuat. Yang sudah dipastikan: APK terbangun, isinya
 lengkap, dan kompilasi Kotlin/Compose-nya lolos. Yang belum diuji di perangkat: perilaku
 Compose saat dijalankan dan ketersediaan suara TTS Korea di ponselmu.
+
+## Kalau aplikasi berhenti karena kesalahan
+
+Versi 1.1.0 ke atas mencatat sendiri kesalahan yang tidak tertangani:
+
+1. Aplikasi berhenti seperti biasa.
+2. Buka aplikasinya lagi — laporan kesalahan langsung tampil di layar.
+3. Ketuk **Salin rincian**, lalu kirimkan isinya ke pengembang.
+4. Ketuk **Tutup dan hapus** kalau sudah tidak diperlukan.
+
+Laporan itu memuat ponsel, versi Android, nomor versi aplikasi, dan jejak lengkap
+kesalahannya — tanpa perlu komputer, kabel, atau adb.
+
+## Uji otomatis
+
+```bash
+./gradlew testDebugUnitTest
+```
+
+`QuizFlowTest` menjalankan alur kuis penuh (mulai → 20 soal → layar hasil) langsung di JVM
+dengan Robolectric, sehingga layar hasil benar-benar digambar dan diukur.
+`QuizFlowApiLevelTest` menjalankan alur yang sama di Android 7, 8, 10, 12, dan 13 sekaligus.
+CI menjalankan kedua uji ini **sebelum** membangun APK, jadi alur yang rusak tidak akan
+pernah sampai ke halaman Releases.
+
