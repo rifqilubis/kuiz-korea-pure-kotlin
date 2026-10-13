@@ -4,7 +4,9 @@ import com.rifqilubis.kuizkorea.data.UiLang
 
 /**
  * Seluruh teks antarmuka. Dua bahasa: Indonesia (bawaan) dan Inggris.
- * Placeholder memakai gaya String.format, mis. "%1$d".
+ *
+ * Placeholder memakai gaya String.format, mis. "%1\$d". Tanda dolar wajib
+ * di-escape, kalau tidak Kotlin membacanya sebagai template string.
  */
 data class Strings(
     val brandKo: String,
@@ -25,12 +27,12 @@ data class Strings(
     val finish: String,
 
     val startTitle: String,
-    val startSub: String,         // ... %1$d kata
+    val startSub: String,         // ... n kata
     val directionLabel: String,
     val countLabel: String,
     val countAll: String,
     val start: String,
-    val bestLine: String,         // %1$d persen
+    val bestLine: String,         // n persen
     val bestNone: String,
     val hint: String,
 
@@ -66,24 +68,24 @@ private val Indonesian = Strings(
     modeKoId = "Kosakata Korea → Bahasa Indonesia",
     modeIdKo = "Kosakata Indonesia → Korea",
     modeMixed = "Campuran Korea ↔ Indonesia",
-    counter = "Soal %1$d / %2$d",
-    scorePill = "Benar: %1$d",
+    counter = "Soal %1\$d / %2\$d",
+    scorePill = "Benar: %1\$d",
     askMeaning = "APA ARTI KATA INI?",
     askWord = "APA KATA KOREA DARI INI?",
     praise = listOf("Tepat sekali!", "Benar!", "Keren, betul!", "Mantap, benar!"),
     oops = listOf("Belum tepat.", "Salah.", "Masih keliru."),
-    answerIs = "Jawabannya: %1$s",
+    answerIs = "Jawabannya: %1\$s",
     next = "Soal berikutnya",
     finish = "Lihat hasil",
     startTitle = "Tebak arti kosakata Korea",
-    startSub = "Satu kata muncul dan ada empat pilihan jawaban. Hanya satu yang benar. Bank soal berisi %1$d kata.",
+    startSub = "Satu kata muncul dan ada empat pilihan jawaban. Hanya satu yang benar. Bank soal berisi %1\$d kata.",
     directionLabel = "Arah terjemahan",
     countLabel = "Jumlah soal",
     countAll = "Semua",
     start = "Mulai kuis",
-    bestLine = "Skor terbaik untuk pengaturan ini: %1$d%%",
+    bestLine = "Skor terbaik untuk pengaturan ini: %1\$d%%",
     bestNone = "Belum ada rekor untuk pengaturan ini.",
-    hint = "Ketuk 🔊 untuk mendengar pelafalan Korea.",
+    hint = "Ketuk tombol pengeras suara untuk mendengar pelafalan Korea.",
     resultTitle = "Hasil kuis",
     msgGreat = "Luar biasa! Kosakata Korea-mu sudah kuat.",
     msgGood = "Bagus! Sedikit lagi menuju sempurna.",
@@ -109,24 +111,24 @@ private val English = Strings(
     modeKoId = "Korean → Indonesian Vocabulary",
     modeIdKo = "Indonesian → Korean Vocabulary",
     modeMixed = "Mixed Korean ↔ Indonesian",
-    counter = "Question %1$d / %2$d",
-    scorePill = "Correct: %1$d",
+    counter = "Question %1\$d / %2\$d",
+    scorePill = "Correct: %1\$d",
     askMeaning = "WHAT DOES THIS WORD MEAN?",
     askWord = "WHAT IS THE KOREAN WORD FOR THIS?",
     praise = listOf("Exactly!", "Correct!", "Nice, that's right!", "Well done!"),
     oops = listOf("Not quite.", "Wrong.", "Still off."),
-    answerIs = "The answer is: %1$s",
+    answerIs = "The answer is: %1\$s",
     next = "Next question",
     finish = "See results",
     startTitle = "Guess the meaning of Korean words",
-    startSub = "One word appears with four answer choices. Only one is correct. The question bank holds %1$d words.",
+    startSub = "One word appears with four answer choices. Only one is correct. The question bank holds %1\$d words.",
     directionLabel = "Translation direction",
     countLabel = "Number of questions",
     countAll = "All",
     start = "Start quiz",
-    bestLine = "Best score for these settings: %1$d%%",
+    bestLine = "Best score for these settings: %1\$d%%",
     bestNone = "No record yet for these settings.",
-    hint = "Tap 🔊 to hear the Korean pronunciation.",
+    hint = "Tap the speaker button to hear the Korean pronunciation.",
     resultTitle = "Quiz result",
     msgGreat = "Outstanding! Your Korean vocabulary is strong.",
     msgGood = "Nice work! Almost perfect.",
