@@ -27,6 +27,7 @@ import com.rifqilubis.kuizkorea.data.Answer
 
 @Composable
 fun ResultScreen(
+    modifier: Modifier = Modifier,
     answers: List<Answer>,
     total: Int,
     elapsedMs: Long,
@@ -40,7 +41,7 @@ fun ResultScreen(
     val percent = if (total == 0) 0 else Math.round(score * 100f / total)
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState()),
     ) {

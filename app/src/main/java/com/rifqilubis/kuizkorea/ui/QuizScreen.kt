@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,8 +35,10 @@ private val LETTERS = listOf("A", "B", "C", "D")
 
 private enum class OptionVisual { Normal, Correct, Wrong }
 
+/** Layar soal. Menggulung isinya sendiri, sama seperti layar lain. */
 @Composable
 fun QuizScreen(
+    modifier: Modifier = Modifier,
     question: Question,
     index: Int,
     total: Int,
@@ -48,7 +52,11 @@ fun QuizScreen(
     val answered = chosenIndex >= 0
     val isCorrectAnswer = answered && chosenIndex == question.correctIndex
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+    ) {
         StatusRow(
             counter = strings.counter.format(index + 1, total),
             scoreText = strings.scorePill.format(score),
@@ -109,6 +117,7 @@ fun QuizScreen(
                     else -> OptionVisual.Normal
                 }
                 OptionRow(
+                    tag = "option-$optionIndex",
                     letter = LETTERS.getOrElse(optionIndex) { (optionIndex + 1).toString() },
                     text = label,
                     visual = visual,
@@ -135,11 +144,14 @@ fun QuizScreen(
                 Spacer(Modifier.height(16.dp))
                 PrimaryButton(
                     text = if (index == total - 1) strings.finish else strings.next,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("next"),
                     onClick = onNext,
                 )
             }
         }
+        Spacer(Modifier.height(12.dp))
     }
 }
 
@@ -160,6 +172,7 @@ private fun SpeakButton(onClick: () -> Unit) {
 
 @Composable
 private fun OptionRow(
+    tag: String,
     letter: String,
     text: String,
     visual: OptionVisual,
@@ -186,6 +199,7 @@ private fun OptionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag(tag)
             .alpha(if (dimmed) 0.45f else 1f)
             .clip(RoundedCornerShape(14.dp))
             .background(background)

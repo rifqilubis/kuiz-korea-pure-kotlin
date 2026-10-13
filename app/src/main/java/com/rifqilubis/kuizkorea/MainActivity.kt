@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -62,7 +60,7 @@ private const val KEY_DARK = "theme-dark"
 private const val KEY_LANG = "ui-lang"
 
 @Composable
-private fun KuizRoot() {
+internal fun KuizRoot() {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE) }
     val speaker = remember { Speaker(context) }
@@ -141,12 +139,17 @@ private fun KuizRoot() {
             color = MaterialTheme.colorScheme.background,
             modifier = Modifier.fillMaxSize(),
         ) {
+            // Column ini SENGAJA tidak bisa di-scroll. Kalau ia di-scroll,
+            // layar di dalamnya yang juga punya verticalScroll (layar hasil)
+            // akan diukur dengan tinggi tak terhingga dan Compose melempar
+            // "Vertically scrollable component was measured with an infinity
+            // maximum height constraints". Setiap layar mengatur scroll-nya
+            // sendiri, dibatasi oleh weight(1f) di bawah ini.
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(KuizColors.glow)
-                    .padding(horizontal = 18.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .padding(horizontal = 18.dp),
             ) {
                 Spacer(Modifier.height(18.dp))
                 TopBar(
@@ -171,6 +174,7 @@ private fun KuizRoot() {
 
                 when (screen) {
                     Screen.Start -> StartScreen(
+                        modifier = Modifier.weight(1f),
                         strings = strings,
                         direction = direction,
                         count = count,
@@ -186,6 +190,7 @@ private fun KuizRoot() {
                         val question = current
                         if (question != null) {
                             QuizScreen(
+                                modifier = Modifier.weight(1f),
                                 question = question,
                                 index = index,
                                 total = questions.size,
@@ -200,6 +205,7 @@ private fun KuizRoot() {
                     }
 
                     Screen.Result -> ResultScreen(
+                        modifier = Modifier.weight(1f),
                         answers = answers,
                         total = questions.size,
                         elapsedMs = elapsedMs,

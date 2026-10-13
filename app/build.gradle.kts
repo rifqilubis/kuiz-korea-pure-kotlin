@@ -11,8 +11,8 @@ android {
         applicationId = "com.rifqilubis.kuizkorea"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
     }
 
     buildTypes {
@@ -52,6 +52,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -65,4 +71,14 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
+
+    // Uji alur kuis langsung di JVM lewat Robolectric, sehingga layar hasil
+    // benar-benar digambar dan crash seperti scroll bersarang tertangkap di CI,
+    // bukan di ponsel.
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.12.2")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

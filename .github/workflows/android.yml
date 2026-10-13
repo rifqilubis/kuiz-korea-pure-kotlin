@@ -63,6 +63,17 @@ jobs:
             echo "sdkmanager tidak ditemukan — AGP akan memakai SDK yang sudah ada"
           fi
 
+      # Dijalankan sebelum build: kalau alur kuis rusak, build tidak diteruskan
+      # sehingga APK yang rusak tidak pernah sampai ke halaman Releases.
+      - name: Uji alur kuis (Robolectric)
+        run: |
+          chmod +x gradlew 2>/dev/null || true
+          if ./gradlew --version > /dev/null 2>&1; then
+            ./gradlew testDebugUnitTest --no-daemon
+          else
+            gradle testDebugUnitTest --no-daemon
+          fi
+
       - name: Build
         run: |
           chmod +x gradlew 2>/dev/null || true
