@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema ini hanya menyiapkan jendela sebelum Compose menggambar.
+         Seluruh warna di dalam aplikasi diatur oleh ui/Theme.kt. -->
+    <style name="Theme.KuizKorea" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/latar</item>
+        <item name="android:statusBarColor">@color/latar</item>
+        <item name="android:navigationBarColor">@color/latar</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
