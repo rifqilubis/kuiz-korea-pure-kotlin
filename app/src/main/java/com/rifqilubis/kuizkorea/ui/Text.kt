@@ -32,6 +32,7 @@ data class Strings(
     val countLabel: String,
     val countAll: String,
     val start: String,
+    val verbAdjStart: String,     // tombol khusus kata kerja & sifat
     val bestLine: String,         // n persen
     val bestNone: String,
     val hint: String,
@@ -83,6 +84,7 @@ private val Indonesian = Strings(
     countLabel = "Jumlah soal",
     countAll = "Semua",
     start = "Mulai kuis",
+    verbAdjStart = "Kata kerja & sifat saja (%1\$d)",
     bestLine = "Skor terbaik untuk pengaturan ini: %1\$d%%",
     bestNone = "Belum ada rekor untuk pengaturan ini.",
     hint = "Ketuk tombol pengeras suara untuk mendengar pelafalan Korea.",
@@ -126,6 +128,7 @@ private val English = Strings(
     countLabel = "Number of questions",
     countAll = "All",
     start = "Start quiz",
+    verbAdjStart = "Verbs & adjectives only (%1\$d)",
     bestLine = "Best score for these settings: %1\$d%%",
     bestNone = "No record yet for these settings.",
     hint = "Tap the speaker button to hear the Korean pronunciation.",

@@ -21,7 +21,7 @@ daftar `Word(...)` di `Words.kt`.
 
 | Layar | Isi |
 | --- | --- |
-| Awal | pilih arah terjemahan (Korea → Indonesia, Indonesia → Korea, campuran), pilih jumlah soal (10/20/50/100/200/semua), skor terbaik |
+| Awal | pilih arah terjemahan (Korea → Indonesia, Indonesia → Korea, campuran), pilih jumlah soal (10/20/50/100/200/semua), skor terbaik, plus tombol **Kata kerja & sifat saja** (185 kata) yang melewati semua kata benda |
 | Kuis | `Soal n / total`, lencana `Benar: n`, bilah progres, kata besar + romanisasi, empat pilihan A–D, umpan balik langsung |
 | Hasil | persentase, jumlah benar/salah, waktu, pembahasan setiap jawaban salah, main lagi / ganti pengaturan |
 

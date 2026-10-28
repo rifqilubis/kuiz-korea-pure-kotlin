@@ -81,4 +81,14 @@ class QuizFlowTest {
 
         compose.onNodeWithTag("start").performScrollTo().assertIsDisplayed()
     }
+
+    /** Tombol baru: mode kata kerja & sifat harus benar-benar membuka kuis. */
+    @Test
+    fun tombolKataKerjaDanSifatMembukaKuis() {
+        compose.setContent { KuizRoot() }
+
+        tap("start-verbs")
+
+        compose.onNodeWithTag("option-0").performScrollTo().assertIsDisplayed()
+    }
 }

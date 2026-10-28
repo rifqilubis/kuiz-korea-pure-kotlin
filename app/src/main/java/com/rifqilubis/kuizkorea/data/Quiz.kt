@@ -61,9 +61,10 @@ object Quiz {
         count: Int,
         lang: UiLang,
         random: Random = Random.Default,
+        words: List<Word> = WORDS,
     ): List<Question> {
-        val wanted = if (count <= 0) WORDS.size else minOf(count, WORDS.size)
-        return WORDS.shuffled(random).take(wanted).map { question(it, direction, lang, random) }
+        val wanted = if (count <= 0) words.size else minOf(count, words.size)
+        return words.shuffled(random).take(wanted).map { question(it, direction, lang, random, words) }
     }
 
     private fun question(
@@ -71,6 +72,7 @@ object Quiz {
         direction: Direction,
         lang: UiLang,
         random: Random,
+        words: List<Word>,
     ): Question {
         val askKorean = when (direction) {
             Direction.KO_ID -> true
@@ -79,7 +81,7 @@ object Quiz {
         }
 
         val correct = labelOf(word, askKorean, lang)
-        val others = WORDS.filter { it.ko != word.ko }
+        val others = words.filter { it.ko != word.ko }
 
         val used = mutableListOf(correct)
         val distractors = mutableListOf<String>()

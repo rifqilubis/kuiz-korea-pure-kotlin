@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rifqilubis.kuizkorea.data.Direction
+import com.rifqilubis.kuizkorea.data.VERBS_ADJECTIVES
 import com.rifqilubis.kuizkorea.data.WORDS
 
 /**
@@ -45,6 +46,7 @@ fun StartScreen(
     onDirection: (Direction) -> Unit,
     onCount: (Int) -> Unit,
     onStart: () -> Unit,
+    onStartVerbs: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -105,6 +107,16 @@ fun StartScreen(
                     .fillMaxWidth()
                     .testTag("start"),
                 onClick = onStart,
+            )
+
+            // Mode khusus: hanya kata kerja dan kata sifat, tanpa kata benda.
+            Spacer(Modifier.height(10.dp))
+            GhostButton(
+                text = strings.verbAdjStart.format(VERBS_ADJECTIVES.size),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("start-verbs"),
+                onClick = onStartVerbs,
             )
 
             Spacer(Modifier.height(18.dp))

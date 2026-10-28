@@ -902,3 +902,16 @@ val WORDS: List<Word> = listOf(
     Word("해프닝", "haepeuning", "kejadian tak terduga", "unexpected incident"),
     Word("새", "sae", "baru", "new")
 )
+
+/**
+ * Kata kerja (동사) dan kata sifat (형용사) saja — dipakai tombol
+ * "kata kerja & sifat" di layar awal.
+ *
+ * Bentuk kamus Korea selalu berakhiran -다, jadi penyaringnya cukup akhiran
+ * itu. Dua pengecualian: 바다 ("laut") adalah kata benda, dan bentuk sopan
+ * -니다 (감사합니다, 죄송합니다, 고맙습니다, ...) adalah kalimat utuh, bukan
+ * kata dasar.
+ */
+val VERBS_ADJECTIVES: List<Word> = WORDS.filter {
+    it.ko.endsWith("다") && it.ko != "바다" && !it.ko.endsWith("니다")
+}

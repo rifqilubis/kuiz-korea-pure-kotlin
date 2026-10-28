@@ -30,6 +30,7 @@ import com.rifqilubis.kuizkorea.data.Direction
 import com.rifqilubis.kuizkorea.data.Question
 import com.rifqilubis.kuizkorea.data.Quiz
 import com.rifqilubis.kuizkorea.data.UiLang
+import com.rifqilubis.kuizkorea.data.VERBS_ADJECTIVES
 import com.rifqilubis.kuizkorea.data.WORDS
 import com.rifqilubis.kuizkorea.ui.CrashScreen
 import com.rifqilubis.kuizkorea.ui.KuizColors
@@ -102,6 +103,10 @@ internal fun KuizRoot() {
         var screen by remember { mutableStateOf(Screen.Start) }
         var direction by remember { mutableStateOf(Direction.KO_ID) }
         var count by remember { mutableIntStateOf(20) }
+        // true = kuis hanya berisi kata kerja dan kata sifat. Bertahan sampai
+        // pengguna menekan tombol mulai yang lain, supaya "Main lagi" mengulang
+        // mode yang sama.
+        var verbAdjOnly by remember { mutableStateOf(false) }
 
         var questions by remember { mutableStateOf<List<Question>>(emptyList()) }
         var index by remember { mutableIntStateOf(0) }
@@ -111,13 +116,18 @@ internal fun KuizRoot() {
         var elapsedMs by remember { mutableLongStateOf(0L) }
         var isNewBest by remember { mutableStateOf(false) }
 
-        fun bestKey(forDirection: Direction, forCount: Int): String {
-            val total = if (forCount <= 0) WORDS.size else minOf(forCount, WORDS.size)
-            return "best:${forDirection.name}:$total"
+        fun bestKey(forDirection: Direction, forCount: Int, verbAdj: Boolean): String {
+            val size = if (verbAdj) VERBS_ADJECTIVES.size else WORDS.size
+            val total = if (forCount <= 0) size else minOf(forCount, size)
+            // Rekor mode kata kerja/sifat disimpan terpisah supaya tidak
+            // menimpa rekor "semua kata".
+            val mode = if (verbAdj) "va" else "all"
+            return "best:${forDirection.name}:$mode:$total"
         }
 
         fun startQuiz() {
-            questions = Quiz.build(direction, count, lang)
+            val words = if (verbAdjOnly) VERBS_ADJECTIVES else WORDS
+            questions = Quiz.build(direction, count, lang, words = words)
             index = 0
             chosen = -1
             answers = emptyList()
@@ -140,7 +150,7 @@ internal fun KuizRoot() {
                 elapsedMs = System.currentTimeMillis() - startedAt
                 val score = answers.count { it.isCorrect }
                 val percent = if (questions.isEmpty()) 0 else Math.round(score * 100f / questions.size)
-                val key = bestKey(direction, count)
+                val key = bestKey(direction, count, verbAdjOnly)
                 val stored = prefs.getInt(key, -1)
                 isNewBest = percent > stored
                 if (isNewBest) prefs.edit().putInt(key, percent).apply()
@@ -204,11 +214,19 @@ internal fun KuizRoot() {
                         direction = direction,
                         count = count,
                         best = remember(direction, count, screen) {
-                            prefs.getInt(bestKey(direction, count), -1).takeIf { it >= 0 }
+                            // Selalu rekor mode "semua kata": tombol utama tidak berubah.
+                            prefs.getInt(bestKey(direction, count, false), -1).takeIf { it >= 0 }
                         },
                         onDirection = { direction = it },
                         onCount = { count = it },
-                        onStart = { startQuiz() },
+                        onStart = {
+                            verbAdjOnly = false
+                            startQuiz()
+                        },
+                        onStartVerbs = {
+                            verbAdjOnly = true
+                            startQuiz()
+                        },
                     )
 
                     Screen.Quiz -> {
