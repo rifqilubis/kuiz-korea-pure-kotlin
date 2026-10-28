@@ -1,12 +1,12 @@
-# Kuiz Korea — Pure Kotlin
+﻿# Kuiz Korea — Pure Kotlin
 
 Aplikasi kuis kosakata Korea untuk Android, **ditulis 100% dengan Kotlin dan Jetpack Compose**.
 
 Tidak ada WebView. Tidak ada aset HTML, CSS, atau JavaScript. Seluruh tampilan digambar Compose
-dan seluruh logika kuis ada di kode Kotlin — termasuk bank kata 570 buah yang disimpan sebagai
+dan seluruh logika kuis ada di kode Kotlin — termasuk bank kata 885 buah yang disimpan sebagai
 daftar `Word(...)` di `Words.kt`.
 
-**570 kata · 4 pilihan · 1 jawaban benar · 100% offline · tanpa satu pun izin**
+**885 kata · 4 pilihan · 1 jawaban benar · 100% offline · tanpa satu pun izin**
 
 ## Unduh & pasang
 
@@ -43,7 +43,7 @@ kuiz-korea-pure-kotlin/
 └─ app/src/main/java/com/rifqilubis/kuizkorea/
    ├─ MainActivity.kt               Activity + seluruh state kuis (Compose)
    ├─ data/Quiz.kt                  mesin kuis: pengecoh, penyaring ambiguitas, skor
-   ├─ data/Words.kt                 570 kata (Kotlin, bukan JSON/JS)
+   ├─ data/Words.kt                 885 kata (Kotlin, bukan JSON/JS)
    ├─ audio/Speaker.kt              TextToSpeech Korea
    └─ ui/
       ├─ Theme.kt                   palet gelap & terang

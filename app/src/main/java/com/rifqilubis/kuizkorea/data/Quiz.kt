@@ -1,4 +1,4 @@
-package com.rifqilubis.kuizkorea.data
+﻿package com.rifqilubis.kuizkorea.data
 
 import kotlin.random.Random
 
@@ -93,7 +93,7 @@ object Quiz {
             distractors.add(label)
         }
 
-        // Jaring pengaman: dengan 570 kata ini praktis tidak pernah terpakai.
+        // Jaring pengaman: dengan 885 kata ini praktis tidak pernah terpakai.
         if (distractors.size < DISTRACTORS) {
             for (candidate in others.shuffled(random)) {
                 if (distractors.size == DISTRACTORS) break
