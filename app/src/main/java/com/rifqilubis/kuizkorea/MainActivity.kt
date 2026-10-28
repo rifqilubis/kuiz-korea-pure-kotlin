@@ -32,6 +32,7 @@ import com.rifqilubis.kuizkorea.data.Quiz
 import com.rifqilubis.kuizkorea.data.UiLang
 import com.rifqilubis.kuizkorea.data.VERBS_ADJECTIVES
 import com.rifqilubis.kuizkorea.data.WORDS
+import com.rifqilubis.kuizkorea.data.WordWeights
 import com.rifqilubis.kuizkorea.ui.CrashScreen
 import com.rifqilubis.kuizkorea.ui.KuizColors
 import com.rifqilubis.kuizkorea.ui.KuizTheme
@@ -63,6 +64,7 @@ private enum class Screen { Start, Quiz, Result }
 private const val PREFS = "kuiz-korea"
 private const val KEY_DARK = "theme-dark"
 private const val KEY_LANG = "ui-lang"
+private const val KEY_WEIGHTS = "word-weights"
 
 @Composable
 internal fun KuizRoot() {
@@ -76,6 +78,9 @@ internal fun KuizRoot() {
     var dark by remember { mutableStateOf(prefs.getBoolean(KEY_DARK, true)) }
     var lang by remember { mutableStateOf(if (prefs.getString(KEY_LANG, "id") == "en") UiLang.EN else UiLang.ID) }
     var crashText by remember { mutableStateOf(CrashLog.read(context)) }
+    // Bobot per kata dipakai bersama oleh semua mode (semua kata maupun kata
+    // kerja & sifat), dan disimpan di perangkat.
+    val weights = remember { WordWeights.decode(prefs.getString(KEY_WEIGHTS, null)) }
 
     KuizTheme(dark = dark) {
         val strings = stringsFor(lang)
@@ -127,7 +132,7 @@ internal fun KuizRoot() {
 
         fun startQuiz() {
             val words = if (verbAdjOnly) VERBS_ADJECTIVES else WORDS
-            questions = Quiz.build(direction, count, lang, words = words)
+            questions = Quiz.build(direction, count, lang, words = words, weightOf = weights::weightOf)
             index = 0
             chosen = -1
             answers = emptyList()
@@ -143,12 +148,19 @@ internal fun KuizRoot() {
             if (optionIndex !in current.options.indices) return
             chosen = optionIndex
             answers = answers + Answer(current, optionIndex)
+            // Bobot disimpan tiap jawaban, supaya tidak hilang kalau aplikasi
+            // berhenti di tengah putaran.
+            if (optionIndex == current.correctIndex) weights.markCorrect(current.word.ko)
+            else weights.markWrong(current.word.ko)
+            prefs.edit().putString(KEY_WEIGHTS, weights.encode()).apply()
         }
 
         fun next() {
             if (index + 1 >= questions.size) {
                 elapsedMs = System.currentTimeMillis() - startedAt
                 val score = answers.count { it.isCorrect }
+                weights.finishRound(score, questions.size)
+                prefs.edit().putString(KEY_WEIGHTS, weights.encode()).apply()
                 val percent = if (questions.isEmpty()) 0 else Math.round(score * 100f / questions.size)
                 val key = bestKey(direction, count, verbAdjOnly)
                 val stored = prefs.getInt(key, -1)

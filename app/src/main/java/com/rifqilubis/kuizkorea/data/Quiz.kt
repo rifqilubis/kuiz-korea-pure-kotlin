@@ -62,9 +62,75 @@ object Quiz {
         lang: UiLang,
         random: Random = Random.Default,
         words: List<Word> = WORDS,
+        weightOf: (String) -> Int = { 0 },
     ): List<Question> {
         val wanted = if (count <= 0) words.size else minOf(count, words.size)
-        return words.shuffled(random).take(wanted).map { question(it, direction, lang, random, words) }
+        return pickWords(words, wanted, weightOf, random)
+            .map { question(it, direction, lang, random, words) }
+    }
+
+    /**
+     * Memilih kata untuk satu putaran.
+     *
+     * Sepertiga jatah diberikan kepada kata yang belum pernah muncul, sisanya
+     * diundi menurut bobot sehingga kata yang sering salah lebih sering
+     * terpilih. Tanpa jatah itu, kata baru akan terus mendominasi sampai
+     * seluruh bank pernah muncul, dan kata yang salah tidak pernah terulang.
+     */
+    internal fun pickWords(
+        words: List<Word>,
+        wanted: Int,
+        weightOf: (String) -> Int,
+        random: Random,
+    ): List<Word> {
+        if (wanted >= words.size) return weightedTake(words, words.size, weightOf, random)
+
+        val fresh = words.filter { weightOf(it.ko) == 0 }
+        val known = words.filter { weightOf(it.ko) > 0 }
+
+        val freshQuota = if (fresh.isEmpty()) 0 else maxOf(1, wanted / 3).coerceAtMost(fresh.size)
+        val picked = fresh.shuffled(random).take(freshQuota).toMutableList()
+
+        val taken = picked.map { it.ko }.toSet()
+        picked += weightedTake(
+            known.filter { it.ko !in taken },
+            wanted - picked.size,
+            weightOf,
+            random,
+        )
+
+        // Sisa jatah, mis. saat kata yang sudah dikenal belum cukup.
+        if (picked.size < wanted) {
+            val used = picked.map { it.ko }.toSet()
+            picked += words.filter { it.ko !in used }
+                .shuffled(random)
+                .take(wanted - picked.size)
+        }
+        return picked
+    }
+
+    /** Mengambil [take] kata tanpa pengembalian, peluangnya sebanding bobot. */
+    private fun weightedTake(
+        words: List<Word>,
+        take: Int,
+        weightOf: (String) -> Int,
+        random: Random,
+    ): List<Word> {
+        val pool = words.toMutableList()
+        val result = ArrayList<Word>(minOf(take, pool.size))
+        repeat(minOf(take, pool.size)) {
+            // Bobot 0 tetap diberi 1 di sini supaya kata baru yang belum
+            // sempat mendapat jatah tidak membuat pengundian gagal.
+            val total = pool.sumOf { maxOf(1, weightOf(it.ko)) }
+            var point = random.nextInt(total)
+            var index = 0
+            while (index < pool.lastIndex && point >= maxOf(1, weightOf(pool[index].ko))) {
+                point -= maxOf(1, weightOf(pool[index].ko))
+                index++
+            }
+            result += pool.removeAt(index)
+        }
+        return result
     }
 
     private fun question(

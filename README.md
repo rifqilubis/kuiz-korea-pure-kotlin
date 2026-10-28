@@ -65,6 +65,17 @@ dipasangkan dalam satu soal — misalnya `rumah` vs `rumah sakit`, `merah` vs `m
 atau `문` vs `창문`. Logikanya ada di `Quiz.tooSimilar`, jadi mustahil ada soal dengan dua
 jawaban benar.
 
+## Kata yang sering salah muncul lebih sering
+
+Setiap kata punya bobot yang disimpan di perangkat — tanpa akun, tanpa internet:
+
+- **Salah** → bobot naik 2 (maksimal 10), jadi kata itu lebih sering jadi soal.
+- **Benar** → bobot turun 1 sampai netral (1), jadi kata yang sudah dikuasai berhenti mendominasi.
+- **Belum pernah muncul** (bobot 0) → selalu dapat sepertiga jatah soal, supaya seluruh bank kata perlahan tercakup.
+- **Putaran selesai 100% benar** → semua bobot dihapus, seluruh bank kembali sama rata.
+
+Berlaku untuk semua mode, termasuk tombol *Kata kerja & sifat saja*.
+
 ## Membangun sendiri
 
 **Android Studio:** buka folder ini, tunggu Gradle sync, lalu Run.
