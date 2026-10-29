@@ -91,4 +91,14 @@ class QuizFlowTest {
 
         compose.onNodeWithTag("option-0").performScrollTo().assertIsDisplayed()
     }
+
+    /** Tombol baru: mode selain kata kerja & sifat juga harus membuka kuis. */
+    @Test
+    fun tombolSelainKataKerjaDanSifatMembukaKuis() {
+        compose.setContent { KuizRoot() }
+
+        tap("start-others")
+
+        compose.onNodeWithTag("option-0").performScrollTo().assertIsDisplayed()
+    }
 }

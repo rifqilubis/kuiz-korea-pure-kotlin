@@ -27,11 +27,13 @@ import androidx.compose.ui.unit.dp
 import com.rifqilubis.kuizkorea.audio.Speaker
 import com.rifqilubis.kuizkorea.data.Answer
 import com.rifqilubis.kuizkorea.data.Direction
+import com.rifqilubis.kuizkorea.data.NON_VERBS_ADJECTIVES
 import com.rifqilubis.kuizkorea.data.Question
 import com.rifqilubis.kuizkorea.data.Quiz
 import com.rifqilubis.kuizkorea.data.UiLang
 import com.rifqilubis.kuizkorea.data.VERBS_ADJECTIVES
 import com.rifqilubis.kuizkorea.data.WORDS
+import com.rifqilubis.kuizkorea.data.Word
 import com.rifqilubis.kuizkorea.data.WordWeights
 import com.rifqilubis.kuizkorea.ui.CrashScreen
 import com.rifqilubis.kuizkorea.ui.KuizColors
@@ -60,6 +62,9 @@ class MainActivity : ComponentActivity() {
 }
 
 private enum class Screen { Start, Quiz, Result }
+
+/** Isi bank kata yang dipakai satu putaran. */
+private enum class Pool { All, Verbs, Others }
 
 private const val PREFS = "kuiz-korea"
 private const val KEY_DARK = "theme-dark"
@@ -108,10 +113,9 @@ internal fun KuizRoot() {
         var screen by remember { mutableStateOf(Screen.Start) }
         var direction by remember { mutableStateOf(Direction.KO_ID) }
         var count by remember { mutableIntStateOf(20) }
-        // true = kuis hanya berisi kata kerja dan kata sifat. Bertahan sampai
-        // pengguna menekan tombol mulai yang lain, supaya "Main lagi" mengulang
-        // mode yang sama.
-        var verbAdjOnly by remember { mutableStateOf(false) }
+        // Mode bertahan sampai pengguna menekan tombol mulai yang lain, supaya
+        // "Main lagi" mengulang mode yang sama.
+        var pool by remember { mutableStateOf(Pool.All) }
 
         var questions by remember { mutableStateOf<List<Question>>(emptyList()) }
         var index by remember { mutableIntStateOf(0) }
@@ -121,17 +125,26 @@ internal fun KuizRoot() {
         var elapsedMs by remember { mutableLongStateOf(0L) }
         var isNewBest by remember { mutableStateOf(false) }
 
-        fun bestKey(forDirection: Direction, forCount: Int, verbAdj: Boolean): String {
-            val size = if (verbAdj) VERBS_ADJECTIVES.size else WORDS.size
+        fun wordsOf(target: Pool): List<Word> = when (target) {
+            Pool.All -> WORDS
+            Pool.Verbs -> VERBS_ADJECTIVES
+            Pool.Others -> NON_VERBS_ADJECTIVES
+        }
+
+        fun bestKey(forDirection: Direction, forCount: Int, forPool: Pool): String {
+            val size = wordsOf(forPool).size
             val total = if (forCount <= 0) size else minOf(forCount, size)
-            // Rekor mode kata kerja/sifat disimpan terpisah supaya tidak
-            // menimpa rekor "semua kata".
-            val mode = if (verbAdj) "va" else "all"
+            // Tiap mode punya rekor sendiri supaya tidak saling menimpa.
+            val mode = when (forPool) {
+                Pool.All -> "all"
+                Pool.Verbs -> "va"
+                Pool.Others -> "oth"
+            }
             return "best:${forDirection.name}:$mode:$total"
         }
 
         fun startQuiz() {
-            val words = if (verbAdjOnly) VERBS_ADJECTIVES else WORDS
+            val words = wordsOf(pool)
             questions = Quiz.build(direction, count, lang, words = words, weightOf = weights::weightOf)
             index = 0
             chosen = -1
@@ -162,7 +175,7 @@ internal fun KuizRoot() {
                 weights.finishRound(score, questions.size)
                 prefs.edit().putString(KEY_WEIGHTS, weights.encode()).apply()
                 val percent = if (questions.isEmpty()) 0 else Math.round(score * 100f / questions.size)
-                val key = bestKey(direction, count, verbAdjOnly)
+                val key = bestKey(direction, count, pool)
                 val stored = prefs.getInt(key, -1)
                 isNewBest = percent > stored
                 if (isNewBest) prefs.edit().putInt(key, percent).apply()
@@ -227,16 +240,20 @@ internal fun KuizRoot() {
                         count = count,
                         best = remember(direction, count, screen) {
                             // Selalu rekor mode "semua kata": tombol utama tidak berubah.
-                            prefs.getInt(bestKey(direction, count, false), -1).takeIf { it >= 0 }
+                            prefs.getInt(bestKey(direction, count, Pool.All), -1).takeIf { it >= 0 }
                         },
                         onDirection = { direction = it },
                         onCount = { count = it },
                         onStart = {
-                            verbAdjOnly = false
+                            pool = Pool.All
                             startQuiz()
                         },
                         onStartVerbs = {
-                            verbAdjOnly = true
+                            pool = Pool.Verbs
+                            startQuiz()
+                        },
+                        onStartOthers = {
+                            pool = Pool.Others
                             startQuiz()
                         },
                     )

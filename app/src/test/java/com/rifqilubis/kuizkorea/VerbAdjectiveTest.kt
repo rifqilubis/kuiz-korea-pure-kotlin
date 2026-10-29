@@ -1,6 +1,7 @@
 package com.rifqilubis.kuizkorea
 
 import com.rifqilubis.kuizkorea.data.Direction
+import com.rifqilubis.kuizkorea.data.NON_VERBS_ADJECTIVES
 import com.rifqilubis.kuizkorea.data.Quiz
 import com.rifqilubis.kuizkorea.data.UiLang
 import com.rifqilubis.kuizkorea.data.VERBS_ADJECTIVES
@@ -32,9 +33,26 @@ class VerbAdjectiveTest {
         assertTrue("harus lebih sedikit dari seluruh bank", VERBS_ADJECTIVES.size < WORDS.size)
     }
 
+    private fun kataKerjaAtauSifat(ko: String) =
+        ko.endsWith("다") && ko != "바다" && !ko.endsWith("니다")
+
     @Test
-    fun kuisHanyaBerisiKataItu() {
-        val allowed = VERBS_ADJECTIVES.map { it.ko }.toSet()
+    fun bankSelainKataKerjaDanSifatAdalahKebalikannya() {
+        assertEquals(WORDS.size, VERBS_ADJECTIVES.size + NON_VERBS_ADJECTIVES.size)
+        assertTrue(
+            "tidak boleh ada kata kerja/sifat yang bocor",
+            NON_VERBS_ADJECTIVES.none { kataKerjaAtauSifat(it.ko) },
+        )
+        assertTrue("바다 (kata benda) harus masuk", NON_VERBS_ADJECTIVES.any { it.ko == "바다" })
+        assertTrue("kata benda biasa harus masuk", NON_VERBS_ADJECTIVES.any { it.ko == "책상" })
+        assertTrue(
+            "tidak boleh ada kata yang dobel",
+            NON_VERBS_ADJECTIVES.size == NON_VERBS_ADJECTIVES.toSet().size,
+        )
+    }
+
+    @Test
+    fun kuisHanyaBerisiKataItu() {        val allowed = VERBS_ADJECTIVES.map { it.ko }.toSet()
         val questions = Quiz.build(Direction.MIXED, 0, UiLang.ID, Random(7), VERBS_ADJECTIVES)
 
         assertEquals("tanpa batas jumlah, semua kata terpakai", VERBS_ADJECTIVES.size, questions.size)

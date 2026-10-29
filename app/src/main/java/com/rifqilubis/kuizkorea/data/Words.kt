@@ -915,3 +915,6 @@ val WORDS: List<Word> = listOf(
 val VERBS_ADJECTIVES: List<Word> = WORDS.filter {
     it.ko.endsWith("다") && it.ko != "바다" && !it.ko.endsWith("니다")
 }
+
+/** Sisanya: kata benda, kata tanya, negara, dan ungkapan — 700 kata. */
+val NON_VERBS_ADJECTIVES: List<Word> = WORDS - VERBS_ADJECTIVES.toSet()

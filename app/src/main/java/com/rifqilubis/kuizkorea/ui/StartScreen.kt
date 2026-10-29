@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rifqilubis.kuizkorea.data.Direction
+import com.rifqilubis.kuizkorea.data.NON_VERBS_ADJECTIVES
 import com.rifqilubis.kuizkorea.data.VERBS_ADJECTIVES
 import com.rifqilubis.kuizkorea.data.WORDS
 
@@ -47,6 +48,7 @@ fun StartScreen(
     onCount: (Int) -> Unit,
     onStart: () -> Unit,
     onStartVerbs: () -> Unit,
+    onStartOthers: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -117,6 +119,16 @@ fun StartScreen(
                     .fillMaxWidth()
                     .testTag("start-verbs"),
                 onClick = onStartVerbs,
+            )
+
+            // Kebalikannya: hanya kata benda dan kata lain, tanpa kata kerja/sifat.
+            Spacer(Modifier.height(10.dp))
+            GhostButton(
+                text = strings.nonVerbStart.format(NON_VERBS_ADJECTIVES.size),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("start-others"),
+                onClick = onStartOthers,
             )
 
             Spacer(Modifier.height(18.dp))
